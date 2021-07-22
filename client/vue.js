@@ -19,7 +19,8 @@ new Vue({
     },
 
     methods : {
-        createContact(){
+        async createContact(){
+          
             console.log('');
             console.log('creating contact...');
             console.group('Data');
@@ -30,27 +31,47 @@ new Vue({
             console.groupEnd();
 
             const {...contact} = this.form;
+
+            const response = await fetch('/api/contacts',
+                {
+                    method: 'POST',
+                    headers: new Headers({
+                    Accept: '/api/contacts',
+                    'Content-Type': 'application/json'}),
+                    mode: 'same-origin',
+                    body: JSON.stringify(contact)
+                });
+
+            console.log(response);
             this.contacts.push({...contact, id : this.contacts.length + 1, marked : false});
         },
-        otmetit(id){
-           this.contacts.find(element => element.id === id).marked = true;
-
-            // for (var i = 0; i <  this.contacts.length; i++){
-            //     console.log(this.contacts[i]);
-            //     this.contacts[i].marked = !this.contacts[i].marked ? true : false;
-            // }
+        async otmetit(id){
+            const response = await fetch('/api/contacts',
+                {
+                    method: 'PUT',
+                    headers: new Headers({
+                    Accept: '/api/contacts',
+                    'Content-Type': 'application/json'}),
+                    mode: 'same-origin',
+                    body: JSON.stringify({'id': id})
+                });
+   
+              const idx = this.contacts.findIndex(item=>item.id=== id);
+              this.contacts[idx].marked = true;
         },
 
-        removeContact(id){
-            console.log(`removing item with id = ${id}`);
-            var rmid;
-            for (var i = 0; i< this.contacts.length; i++){
-                if (this.contacts.id === id){
-                    rmid = i;
-                }
-            }
+        async removeContact(id){
+            const response = await fetch('/api/contacts',
+                {
+                    method: 'DELETE',
+                    headers: new Headers({
+                    Accept: '/api/contacts',
+                    'Content-Type': 'application/json'}),
+                    mode: 'same-origin',
+                    body: JSON.stringify({'id': id})
+                });
 
-            this.contacts.splice(rmid, 1);
+            this.contacts = this.contacts.filter(item=>item.id!== id);
         }
     },
     async mounted(){
